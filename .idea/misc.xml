@@ -5,11 +5,12 @@
       <map>
         <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout-land/activity_main.xml" value="0.20326278659611993" />
         <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout-large/activity_main.xml" value="0.180078125" />
-        <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout/activity_search.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout/booklist_items_layout.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout/fragment_book_details.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout/fragment_bookl_list.xml" value="0.24010416666666667" />
+        <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout/fragment_control.xml" value="0.23854166666666668" />
         <entry key="..\:/Users/well1/AndroidStudioProjects/AudioBBPlayer/app/src/main/res/layout/two_pane_layout.xml" value="0.24010416666666667" />
       </map>
     </option>

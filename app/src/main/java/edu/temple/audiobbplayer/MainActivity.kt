@@ -1,16 +1,50 @@
 package edu.temple.audiobbplayer
 
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
 import android.view.View
 import android.widget.ImageButton
+import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
+import edu.temple.audlibplayer.PlayerService
 
-class MainActivity : AppCompatActivity(), BookListFragment.BookSelectedInterface {
+class MainActivity : AppCompatActivity(), BookListFragment.BookSelectedInterface, ControlFragment.ActionsInterface {
 
     private lateinit var bookListFragment : BookListFragment
+    var isConnected = false
+    lateinit var mediaControlBinder: PlayerService.MediaControlBinder
+
+    val progressHandler = Handler(Looper.getMainLooper()){
+        if(it.obj != null) {
+            val bookProgressObject = it.obj as PlayerService.BookProgress
+            val progressTime = bookProgressObject.progress
+            var seekBar = findViewById<SeekBar>(R.id.seekBar)
+            var progressTextView = findViewById<TextView>(R.id.currentProgress)
+            progressTextView.text = progressTime.toString()
+            seekBar.progress = progressTime
+        }
+        true
+    }
+
+    private val serviceConnection = object: ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            isConnected = true
+            mediaControlBinder = service as PlayerService.MediaControlBinder
+            mediaControlBinder.setProgressHandler(progressHandler)
+        }
+        override fun onServiceDisconnected(name: ComponentName?) {
+            isConnected = false
+        }
+    }
 
     private val searchRequest = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         supportFragmentManager.popBackStack()
@@ -18,7 +52,6 @@ class MainActivity : AppCompatActivity(), BookListFragment.BookSelectedInterface
             bookListViewModel.copyBooks(getSerializableExtra(BookList.BOOKLIST_KEY) as BookList)
             bookListFragment.bookListUpdated()
         }
-
     }
 
     private val isSingleContainer : Boolean by lazy{
@@ -40,6 +73,11 @@ class MainActivity : AppCompatActivity(), BookListFragment.BookSelectedInterface
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Adds the control fragment to the bottom fragment container
+        supportFragmentManager.beginTransaction().add(R.id.activitiesView, ControlFragment()).commit()
+
+        bindService(Intent(this, PlayerService::class.java), serviceConnection, BIND_AUTO_CREATE)
 
         // Grab test data
         //getBookList()
@@ -88,7 +126,7 @@ class MainActivity : AppCompatActivity(), BookListFragment.BookSelectedInterface
         super.onBackPressed()
     }
 
-    override fun bookSelected() {
+    override fun bookSelected(book: Book) {
         // Perform a fragment replacement if we only have a single container
         // when a book is selected
 
@@ -99,5 +137,40 @@ class MainActivity : AppCompatActivity(), BookListFragment.BookSelectedInterface
                 .addToBackStack(null)
                 .commit()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unbindService(serviceConnection)
+    }
+
+    // First determines if there is a book playing, if not then
+    // it loads the selected book. If so, then it plays at given
+    // time.
+    override fun onClickPlay(progressTime: Int) {
+        Toast.makeText(this,"Clicked Play", Toast.LENGTH_SHORT).show()
+        val currentBook = selectedBookViewModel.getSelectedBook().value
+        if (currentBook != null) {
+            if(progressTime > 0){
+                mediaControlBinder.seekTo(progressTime)
+            }
+            else{
+                mediaControlBinder.play(currentBook.id)
+            }
+        }
+    }
+
+    override fun onClickPause() {
+        Toast.makeText(this,"Clicked Pause", Toast.LENGTH_SHORT).show()
+        mediaControlBinder.pause()
+    }
+
+    override fun onClickStop() {
+        Toast.makeText(this,"Clicked Stop", Toast.LENGTH_SHORT).show()
+        mediaControlBinder.stop()
+    }
+
+    override fun onClickSeek() {
+        Toast.makeText(this,"Clicked Change Time", Toast.LENGTH_SHORT).show()
     }
 }
